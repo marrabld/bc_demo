@@ -1,6 +1,7 @@
-from tools import Miner, Validator, Block, Wallet, TARGET
+from tools import COINBASE, Miner, Validator, Block, Wallet, TARGET, MEMPOOL, FullNode, CANDIDATE_BLOCKS
 from Crypto.Hash import SHA256
 import pickle
+import jsonpickle
 
 block = Block()
 
@@ -15,7 +16,7 @@ print('Merkle root :: {}'.format(block.merkle_root))
 
 print('Mining block :: Target difficulty {}'.format(TARGET))
 m.mine(block)
-print('None  :: {}'.format(block.nonce))
+print('Nonce  :: {}'.format(block.nonce))
 print('validating block :: {}'.format(block.hash))
 v = Validator()
 print(v.validate(block))
@@ -57,3 +58,51 @@ print('==========')
 print('Decrypting message')
 message = w.decrypt_message(digest)
 print(message)
+
+
+print('==========')
+print('making transaction')
+t = w.send_transaction('Shiv', '100')
+print(t)
+
+print('==========')
+print('validating transaction block')
+print(v.validate_transaction(t))
+
+
+print('==========')
+print('generating some test transactions')
+w.send_transaction('Kev', '1')
+w.send_transaction('Kat', '2')
+w.send_transaction('Shv', '3')
+w.send_transaction('Bec', '4')
+w.send_transaction('Rob', '5')
+w.send_transaction('And', '6')
+
+print(MEMPOOL)
+
+full_node = FullNode()
+
+full_node.gen_candidate_block()
+
+for item in CANDIDATE_BLOCKS:
+    print(item.merkle_root)
+
+#print(v.validate(CANDIDATE_BLOCKS[0]))
+jp = jsonpickle.encode(CANDIDATE_BLOCKS)
+
+print(jp)
+
+import json
+
+f = open('candidate_blocks.json', 'w')
+json.dump(jp, f, indent=4)
+
+print(w.priv_key.hex())
+
+w.print_wallet()
+
+print(COINBASE)
+
+print('end')
+
