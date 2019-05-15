@@ -11,7 +11,7 @@ DEBUG = 2
 
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
-unpad = lambda s : s[:-ord(s[len(s)-1:])]
+unpad = lambda s: s[:-ord(s[len(s) - 1:])]
 
 
 class Block:
@@ -100,6 +100,38 @@ class Validator:
         candidate_hash = m.hexdigest()
         return candidate_hash == block.hash
 
+    @staticmethod
+    def validate_transaction(transaction):
+        """
+
+        :return:
+        """
+
+        '''
+        transaction = {}
+
+        transaction['to'] = to
+        transaction['coins'] = coins
+        sig = self.sign_transaction(transaction)
+        transaction['pub_key'] = self.pub_key
+        transaction['from'] = self.wallet_address
+        transaction['sig'] = sig
+        '''
+
+        candidate_t = {}
+        candidate_t['to'] = transaction['to']
+        candidate_t['coins'] = transaction['coins']
+
+        digest = SHA256.new()
+        digest.update(str(candidate_t).encode())
+
+        # Load public key and verify message
+        verifier = PKCS1_v1_5.new(RSA.importKey(transaction['pub_key']))
+        verified = verifier.verify(digest, transaction['sig'])
+        return verified
+
+
+
 
 class Crypto:
     @staticmethod
@@ -182,7 +214,6 @@ class Wallet:
 
         return encrypted
 
-
     def decrypt_message(self, digest):
         """
 
@@ -197,6 +228,25 @@ class Wallet:
         decrypted = rsakey.decrypt(digest)
 
         return unpad(b64decode(decrypted))
+
+    def send_transaction(self, to, coins):
+        """
+
+        :param to:
+        :param coins:
+        :return:
+        """
+
+        transaction = {}
+
+        transaction['to'] = to
+        transaction['coins'] = coins
+        sig = self.sign_transaction(transaction)
+        transaction['pub_key'] = self.pub_key
+        transaction['from'] = self.wallet_address
+        transaction['sig'] = sig
+
+        return transaction
 
     @staticmethod
     def verify_sig(transaction, sig, pub_key):
