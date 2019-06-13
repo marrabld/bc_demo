@@ -100,7 +100,7 @@ json.dump(jp, f, indent=4)
 
 print(w.priv_key.hex())
 
-w.print_wallet()
+#w.print_wallet()
 
 print(COINBASE)
 
