@@ -5,6 +5,8 @@ from models import node
 
 from forms import auth_form
 from flask_login import login_user, login_required, logout_user, LoginManager, current_user
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
 
 # ==============================#
 # Make sure we are logged in before hitting the endpoints
@@ -28,6 +30,7 @@ def signup():
             if node.User.query.filter_by(email=form.email.data).first():
                 return "Email address already exists"
             else:
+                app.logger.info('Adding new user')
                 newuser = node.User(form.email.data, form.password.data)
                 db.session.add(newuser)
                 db.session.commit()
@@ -47,8 +50,10 @@ def login():
         if form.validate_on_submit():
             user = node.User.query.filter_by(email=form.email.data).first()
             if user:
-                if user.password == form.password.data:
+                #if user.password == form.password.data:
+                if user.check_password(form.password.data):
                     login_user(user)
+                    app.logger.info('Redirecting to hello world')
                     return redirect(url_for('hello_world'))
                 else:
                     return "Wrong password"

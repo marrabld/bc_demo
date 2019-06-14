@@ -43,22 +43,11 @@ def load_test_data():
         db.create_all()
 
         app.logger.info("Populating database with dummy data")
-        for i_iter in range(0, 8):
-            date = datetime.datetime(year=2017, month=11, day=i_iter + 1, hour=9, minute=30, second=0, tzinfo=None)
-            _id = i_iter
-            pi = 'Dan Marrable <d.marrable@curtin.edu.au>'
-            last_published_date = datetime.datetime.now()
-            if i_iter == 14 or i_iter == 5:
-                transfer_success = False
-            else:
-                transfer_success = True
-
-            s = transfer.Schedule(id=_id,
-                                  date_time=date,
-                                  pi=pi,
-                                  last_published_date=last_published_date,
-                                  transfer_success=transfer_success)
-            db.session.add(s)
+        admin = node.User(password='admin', email='admin@example.com')
+        guest = node.User(password='guest', email='guest@example.com')
+        pwh = None
+        db.session.add(admin)
+        db.session.add(guest)
         db.session.commit()
         app.logger.info("Done")
 
@@ -97,17 +86,6 @@ def run_tests():
     # nose2.main()
     # #nose2.main(module=tests)
     # #nose2.run(module='./tests', defaultTest='./tests')
-
-
-@manager.command
-def start_scheduler():
-    """
-    Set the scheduler to run regularly.  defaults to  every 3 hours.
-    """
-    api.db.scheduler.set_schedule()
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 
 if __name__ == "__main__":
